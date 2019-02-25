@@ -63,9 +63,9 @@ size_t load_image_data(const string& image_folder,
                        std::vector<string> &limg_name,
                        std::vector<string> &rimg_name) {
   LOG(INFO) << "Loading " << image_folder;
-  std::string l_path = image_folder + "/mav0/cam0/data.csv";
-  std::string r_path = image_folder + "/mav0/cam1/data.csv";
-  std::string r_img_prefix = image_folder + "/mav0/cam1/data/";
+  std::string l_path = image_folder + "/cam0/data.csv";
+  std::string r_path = image_folder + "/cam1/data.csv";
+  std::string r_img_prefix = image_folder + "/cam1/data/";
   std::ifstream limg_file(l_path);
   std::ifstream rimg_file(r_path);
   if (!limg_file.is_open() || !rimg_file.is_open()) {
@@ -151,9 +151,9 @@ size_t load_imu_data(const string& imu_file_str,
 
 void load_asl_calib(const std::string &asl_path,
                     XP::DuoCalibParam &calib_param) {
-  std::string cam0_yaml = asl_path + "/mav0/cam0/sensor.yaml";
-  std::string cam1_yaml = asl_path + "/mav0/cam1/sensor.yaml";
-  std::string imu0_yaml = asl_path + "/mav0/imu0/sensor.yaml";
+  std::string cam0_yaml = asl_path + "/cam0/sensor.yaml";
+  std::string cam1_yaml = asl_path + "/cam1/sensor.yaml";
+  std::string imu0_yaml = asl_path + "/imu0/sensor.yaml";
   YAML::Node cam0_calib = YAML::LoadFile(cam0_yaml);
   YAML::Node cam1_calib = YAML::LoadFile(cam1_yaml);
   YAML::Node imu0_calib = YAML::LoadFile(imu0_yaml);
@@ -357,7 +357,7 @@ int main(int argc, char** argv) {
   constexpr int reserve_num = 5000;
   img_file_paths.reserve(reserve_num);
   slave_img_file_paths.reserve(reserve_num);
-  fs::path p(FLAGS_imgs_folder + "/mav0/cam0");
+  fs::path p(FLAGS_imgs_folder + "/cam0");
   if (!fs::is_directory(p)) {
     LOG(ERROR) << p << " is not a directory";
     return -1;
@@ -370,7 +370,7 @@ int main(int argc, char** argv) {
   for (int i=0; i<limg_name.size(); i++) {
     string l_png = p.string() + "/data/" + limg_name[i];
     img_file_paths.push_back(l_png);
-    slave_img_file_paths.push_back(FLAGS_imgs_folder + "/mav0/cam1/data/" + rimg_name[i]);
+    slave_img_file_paths.push_back(FLAGS_imgs_folder + "/cam1/data/" + rimg_name[i]);
     iba_dat_file_paths.push_back(FLAGS_imgs_folder + "/dat/" + limg_name[i] + ".dat");
   }
   if (!FLAGS_stereo) {
@@ -403,7 +403,7 @@ int main(int argc, char** argv) {
 
   // Load IMU samples to predict OF point locations
   std::list<XP::ImuData> imu_samples;
-  std::string imu_file = FLAGS_imgs_folder + "/mav0/imu0/data.csv";
+  std::string imu_file = FLAGS_imgs_folder + "/imu0/data.csv";
   uint64_t offset_ts_ns;
   if (load_imu_data(imu_file, &imu_samples, offset_ts_ns) > 0) {
     std::cout << "Load imu data. Enable OF prediciton with gyro\n";
