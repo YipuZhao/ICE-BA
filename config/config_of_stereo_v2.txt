@@ -1,0 +1,14 @@
+visualize = 2
+pause = 0
+print_camera = 0
+verbose_lba = 0
+verbose_gba = 0
+serial_lba = 0
+serial_gba = 0
+debug_lba = 0
+debug_gba = 0
+history_lba = 1
+history_gba = 1
+
+input_fps = 30
+random_seed = 10
