@@ -11,7 +11,10 @@ LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../cmake)
 
 find_package(Glog REQUIRED)
 find_package(GFlags REQUIRED)
+
+#set( brisk_DIR /opt/brisk/lib/CMake/brisk )
 find_package(brisk REQUIRED)
+#message("BRISK include dir" ${brisk_INCLUDE_DIR})
 
 set( OpenCV_DIR /opt/opencv3/share/OpenCV )
 find_package(OpenCV REQUIRED)

@@ -535,6 +535,9 @@ int main(int argc, char** argv) {
                 cv::blur(slave_img_in, slave_img_smooth, cv::Size(3, 3));
             }
         }
+
+        auto vio_proc_start = std::chrono::high_resolution_clock::now();
+
         // use optical flow  from the 1st frame
         if (it_img != FLAGS_start_idx) {
             CHECK(it_img >= 1);
@@ -627,11 +630,26 @@ int main(int argc, char** argv) {
 
         std::sort(key_pnts.begin(), key_pnts.end(), cmp_by_class_id);
         std::sort(key_pnts_slave.begin(), key_pnts_slave.end(), cmp_by_class_id);
+
+        //
+        solver.logCurFrame.time_stamp = time_stamp;
+        solver.logCurFrame.time_feature = (std::chrono::high_resolution_clock::now() - vio_proc_start).count();
+        auto lba_proc_start = std::chrono::high_resolution_clock::now();
+
         // push to IBA
         IBA::CurrentFrame CF;
         IBA::KeyFrame KF;
         create_iba_frame(key_pnts, key_pnts_slave, imu_meas, time_stamp, &CF, &KF);
         solver.PushCurrentFrame(CF, KF.iFrm == -1 ? nullptr : &KF);
+
+        //
+        solver.logCurFrame.time_windowOpt = (std::chrono::high_resolution_clock::now() - lba_proc_start).count();
+        solver.logCurFrame.time_total = (std::chrono::high_resolution_clock::now() - vio_proc_start).count();
+        if (solver.logCurFrame.time_stamp > 0)
+            solver.logTracking.push_back(solver.logCurFrame);
+        solver.logCurFrame.setZero();
+
+
         if (FLAGS_save_feature) {
             IBA::SaveCurrentFrame(iba_dat_file_paths[it_img], CF, KF);
         }
@@ -645,8 +663,12 @@ int main(int argc, char** argv) {
     std::string temp_file = "/tmp/" + std::to_string(offset_ts_ns) + ".txt";
     solver.SaveCamerasGBA(temp_file, false /* append */, true /* pose only */);
     solver.Stop();
-    solver.Destroy();
 
+    // add by Yipu
+    std::cout << "terminated! saving the time cost log!" << std::endl;
+    solver.saveLogging("/mnt/DATA/tmpLog.txt");
+
+    solver.Destroy();
     // for comparsion with asl groundtruth
     convert_to_asl_timestamp(temp_file, FLAGS_gba_camera_save_path, offset_ts_ns);
     return 0;

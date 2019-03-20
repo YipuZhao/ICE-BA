@@ -27,6 +27,46 @@ class ViewerIBA;
 
 namespace IBA {
 
+
+// Yipu
+class timeLog {
+public:
+  timeLog(const double &timeStamp_ = 0) {
+    time_stamp = timeStamp_;
+    time_feature = 0;
+    time_poseTrack = 0;
+    time_windowOpt = 0;
+    time_total = 0;
+    //
+    num_LFs = 0;
+    num_KFs = 0;
+    num_lmks = 0;
+  }
+
+  void setZero() {
+    time_stamp = 0;
+    time_feature = 0;
+    time_poseTrack = 0;
+    time_windowOpt = 0;
+    time_total = 0;
+    //
+    num_LFs = 0;
+    num_KFs = 0;
+    num_lmks = 0;
+  }
+
+  double time_stamp;
+  double time_feature;
+  double time_poseTrack;
+  double time_windowOpt;
+  double time_total;
+  //
+  size_t num_LFs;
+  size_t num_KFs;
+  size_t num_lmks;
+};
+
+
 class Solver {
  public:
   typedef std::function<void(const int, const float)> IbaCallback;
@@ -125,6 +165,14 @@ class Solver {
   void GetTimeGBA(Time *t);
   bool SaveTimesLBA(const std::string fileName, const bool append = true);
   bool SaveTimesGBA(const std::string fileName, const bool append = true);
+
+
+  // save the time cost of msckf
+  std::vector<timeLog> logTracking;
+  timeLog logCurFrame;
+
+  void saveLogging(const std::string &filename);
+
 
  protected:
 

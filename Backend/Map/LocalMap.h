@@ -88,6 +88,27 @@ class LocalMap {
   void LoadB(FILE *fp);
   void AssertConsistency();
 
+
+  //
+  inline void getLFNum(size_t & N) {
+      MT_READ_LOCK_BEGIN(m_MT, MT_TASK_NONE, MT_TASK_NONE);
+      N = m_CsLF.size();
+      MT_READ_LOCK_END(m_MT, MT_TASK_NONE, MT_TASK_NONE);
+  }
+
+  inline void getKFNum(size_t & N) {
+      MT_READ_LOCK_BEGIN(m_MT, MT_TASK_NONE, MT_TASK_NONE);
+      N = m_CsKF.size();
+      MT_READ_LOCK_END(m_MT, MT_TASK_NONE, MT_TASK_NONE);
+  }
+
+  inline void getIDPNum(size_t & N) {
+      MT_READ_LOCK_BEGIN(m_MT, MT_TASK_NONE, MT_TASK_NONE);
+      N = m_ds.size();
+      MT_READ_LOCK_END(m_MT, MT_TASK_NONE, MT_TASK_NONE);
+  }
+
+
  protected:
 
   std::list<CameraLF> m_CsLF;
