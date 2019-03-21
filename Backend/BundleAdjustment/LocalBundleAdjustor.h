@@ -1418,6 +1418,28 @@ class LocalBundleAdjustor : public MT::Thread {
 #endif
   };
 
+
+//  const int NzLF = CountMeasurementsFeatureLF(), NzKF = CountMeasurementsFeatureKF();
+//  const int NsLF = CountSchurComplements();
+//  const int NST = CountSlidingTracks(), Nd = CountLocalTracks();
+//  UT::PrintSeparator('*');
+//  UT::Print("[%d] [LocalBundleAdjustor::Run]\n", iFrm);
+//  UT::Print("  FrameLF = %d\t\t\tMeasurement = %d\tSchur = %d\n", m_LFs.size(), NzLF, NsLF);
+//  UT::Print("  FrameKF = %d\t\t\tMeasurement = %d\n", m_KFs.size(), NzKF);
+//  UT::Print("  TrackST = %d * %.2f = %d\n", Nd, UT::Percentage(NST, Nd), NST);
+  //
+  inline void getLFNum(size_t & N) {
+      N = m_LFs.size();
+  }
+
+  inline void getKFNum(size_t & N) {
+      N = m_KFs.size();
+  }
+
+  inline void getIDPNum(size_t & N) {
+      N = CountLocalTracks();
+  }
+
  protected:
 
   virtual void SynchronizeData();

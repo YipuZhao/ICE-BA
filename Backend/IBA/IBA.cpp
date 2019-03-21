@@ -263,9 +263,9 @@ void Solver::PushCurrentFrame(const CurrentFrame &CF, const KeyFrame *KF, const 
     }
 
     //
-    m_internal->m_LM.getLFNum(logCurFrame.num_LFs);
-    m_internal->m_LM.getKFNum(logCurFrame.num_KFs);
-    m_internal->m_LM.getIDPNum(logCurFrame.num_lmks);
+    m_internal->m_LBA.getLFNum(logCurFrame.num_LFs);
+    m_internal->m_LBA.getKFNum(logCurFrame.num_KFs);
+    m_internal->m_LBA.getIDPNum(logCurFrame.num_lmks);
 }
 
 void Solver::PushKeyFrame(const KeyFrame &KF, const bool serial) {
