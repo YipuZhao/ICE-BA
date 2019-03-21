@@ -207,7 +207,7 @@ void Solver::saveLogging(const std::string &filename) {
     std::ofstream fFrameLog;
     fFrameLog.open(filename.c_str());
     fFrameLog << std::fixed;
-    fFrameLog << "#frame_time_stamp time_feature time_poseTrack time_windowOpt time_total pose_num feature_num" << std::endl;
+    fFrameLog << "#frame_time_stamp time_feature time_poseTrack time_windowOpt time_total local_frame_num key_frame_num feature_num" << std::endl;
     for(size_t i=0; i<logTracking.size(); i++)
     {
         fFrameLog << std::setprecision(6)
@@ -217,6 +217,7 @@ void Solver::saveLogging(const std::string &filename) {
                   << logTracking[i].time_windowOpt << " "
                   << logTracking[i].time_total << " "
                   << std::setprecision(0)
+                  << logTracking[i].num_LFs << " "
                   << logTracking[i].num_KFs << " "
                   << logTracking[i].num_lmks << std::endl;
     }

@@ -640,7 +640,7 @@ int main(int argc, char** argv) {
         //        std::cout << std::setprecision(15) << time_orig << std::endl;
 
         solver.logCurFrame.time_stamp = time_orig;
-        solver.logCurFrame.time_feature = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - vio_proc_start).count();
+        solver.logCurFrame.time_feature = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - vio_proc_start).count() * 1e-3;
         auto lba_proc_start = std::chrono::high_resolution_clock::now();
 
         // push to IBA
@@ -651,8 +651,8 @@ int main(int argc, char** argv) {
 
 
         // Time Logging
-        solver.logCurFrame.time_windowOpt = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - lba_proc_start).count();
-        solver.logCurFrame.time_total = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - vio_proc_start).count();
+        solver.logCurFrame.time_windowOpt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lba_proc_start).count() * 1e-3;
+        solver.logCurFrame.time_total = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - vio_proc_start).count() * 1e-3;
         if (solver.logCurFrame.time_stamp > 0)
             solver.logTracking.push_back(solver.logCurFrame);
         solver.logCurFrame.setZero();

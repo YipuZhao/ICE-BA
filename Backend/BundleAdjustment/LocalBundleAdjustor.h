@@ -1437,7 +1437,7 @@ class LocalBundleAdjustor : public MT::Thread {
   }
 
   inline void getIDPNum(size_t & N) {
-      N = CountLocalTracks();
+      N = CountSlidingTracks();
   }
 
  protected:
