@@ -487,6 +487,7 @@ int main(int argc, char** argv) {
     std::vector<cv::KeyPoint> pre_image_key_points;
     cv::Mat pre_image_features;
     for (int it_img = FLAGS_start_idx; it_img < FLAGS_end_idx; ++it_img) {
+        //
         VLOG(0) << " start detection at ts = " << fs::path(img_file_paths[it_img]).stem().string();
         auto read_img_start = std::chrono::high_resolution_clock::now();
         cv::Mat img_in_raw;
@@ -501,6 +502,8 @@ int main(int argc, char** argv) {
         }
         // get timestamp from image file name (s)
         const float time_stamp = get_timestamp_from_img_name(img_file_paths[it_img], offset_ts_ns);
+        //        std::cout << "time stamp = " << time_stamp << std::endl;
+
         std::vector<cv::KeyPoint> key_pnts;
         cv::Mat orb_feat;
         cv::Mat pre_img_in_smooth;
@@ -632,7 +635,11 @@ int main(int argc, char** argv) {
         std::sort(key_pnts_slave.begin(), key_pnts_slave.end(), cmp_by_class_id);
 
         //
-        solver.logCurFrame.time_stamp = time_stamp;
+        double time_orig = static_cast<double>(time_stamp) + static_cast<double>(offset_ts_ns*1e-9);
+        //        float time_orig = static_cast<float>( int64_t( (int64_t(time_stamp * 1e9) + offset_ts_ns) / 1e5) ) / 1e4;
+        //        std::cout << std::setprecision(15) << time_orig << std::endl;
+
+        solver.logCurFrame.time_stamp = time_orig;
         solver.logCurFrame.time_feature = (std::chrono::high_resolution_clock::now() - vio_proc_start).count();
         auto lba_proc_start = std::chrono::high_resolution_clock::now();
 
@@ -642,13 +649,16 @@ int main(int argc, char** argv) {
         create_iba_frame(key_pnts, key_pnts_slave, imu_meas, time_stamp, &CF, &KF);
         solver.PushCurrentFrame(CF, KF.iFrm == -1 ? nullptr : &KF);
 
-        //
+
+        // Time Logging
         solver.logCurFrame.time_windowOpt = (std::chrono::high_resolution_clock::now() - lba_proc_start).count();
         solver.logCurFrame.time_total = (std::chrono::high_resolution_clock::now() - vio_proc_start).count();
         if (solver.logCurFrame.time_stamp > 0)
             solver.logTracking.push_back(solver.logCurFrame);
         solver.logCurFrame.setZero();
 
+        // TODO
+        // Real-time Logging
 
         if (FLAGS_save_feature) {
             IBA::SaveCurrentFrame(iba_dat_file_paths[it_img], CF, KF);
@@ -660,16 +670,20 @@ int main(int argc, char** argv) {
         cv::waitKey(1);
         prev_time_stamp = time_stamp;
     }
-    std::string temp_file = "/tmp/" + std::to_string(offset_ts_ns) + ".txt";
-    solver.SaveCamerasGBA(temp_file, false /* append */, true /* pose only */);
+    //    std::string temp_file = "/tmp/" + std::to_string(offset_ts_ns) + ".txt";
+    //    solver.SaveCamerasGBA(temp_file, false /* append */, true /* pose only */);
+    solver.SaveCamerasGBA("/mnt/DATA/tmp_GBA.txt", false /* append */, true /* pose only */);
+    //
+    solver.SaveCamerasLBA("/mnt/DATA/tmp_LBA.txt", false /* append */, true /* pose only */);
+
     solver.Stop();
 
     // add by Yipu
     std::cout << "terminated! saving the time cost log!" << std::endl;
     solver.saveLogging("/mnt/DATA/tmpLog.txt");
-
     solver.Destroy();
     // for comparsion with asl groundtruth
-    convert_to_asl_timestamp(temp_file, FLAGS_gba_camera_save_path, offset_ts_ns);
+    //    convert_to_asl_timestamp(temp_file, FLAGS_gba_camera_save_path, offset_ts_ns);
+
     return 0;
 }

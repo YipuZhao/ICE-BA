@@ -1453,6 +1453,17 @@ bool Solver::SaveCamerasGBA(const std::string fileName, const bool append, const
     return m_internal->m_GBA.SaveCameras(_fileName, poseOnly);
 }
 
+//
+bool Solver::SaveCamerasLBA(const std::string fileName, const uint64_t offset_ns, const bool append, const bool poseOnly) {
+    const std::string _fileName = ConvertFileName(fileName, m_internal->m_dir, append);
+    return m_internal->m_LBA.SaveCameras(_fileName, poseOnly, offset_ns);
+}
+
+bool Solver::SaveCamerasGBA(const std::string fileName, const uint64_t offset_ns, const bool append, const bool poseOnly) {
+    const std::string _fileName = ConvertFileName(fileName, m_internal->m_dir, append);
+    return m_internal->m_GBA.SaveCameras(_fileName, poseOnly, offset_ns);
+}
+
 bool Solver::SaveCostsLBA(const std::string fileName, const bool append, const int type) {
     const std::string _fileName = ConvertFileName(fileName, m_internal->m_dir, append);
     return m_internal->m_LBA.SaveCosts(_fileName, type);

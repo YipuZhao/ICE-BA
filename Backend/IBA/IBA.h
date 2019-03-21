@@ -151,8 +151,13 @@ class Solver {
   float ComputeRMSELBA();
   float ComputeRMSEGBA();
   float GetTotalDistance();
+
   bool SaveCamerasLBA(const std::string fileName, const bool append = true, const bool poseOnly = true);
   bool SaveCamerasGBA(const std::string fileName, const bool append = true, const bool poseOnly = true);
+  // Yipu
+  bool SaveCamerasLBA(const std::string fileName, const uint64_t offset_ns, const bool append = true, const bool poseOnly = true);
+  bool SaveCamerasGBA(const std::string fileName, const uint64_t offset_ns, const bool append = true, const bool poseOnly = true);
+
   bool SaveCostsLBA(const std::string fileName, const bool append = true, const int type = 0);
   bool SaveCostsGBA(const std::string fileName, const bool append = true, const int type = 0);
   bool SaveResidualsLBA(const std::string fileName, const bool append = true, const int type = 0);

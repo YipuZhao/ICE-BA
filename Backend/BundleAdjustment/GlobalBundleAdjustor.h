@@ -122,7 +122,9 @@ class GlobalBundleAdjustor : public MT::Thread {
   //virtual int GetTotalPoints(int *N = NULL);
   virtual float GetTotalTime(int *N = NULL);
   virtual bool SaveTimes(const std::string fileName);
-  virtual bool SaveCameras(const std::string fileName, const bool poseOnly = true);
+  // virtual bool SaveCameras(const std::string fileName, const bool poseOnly = true);
+  virtual bool SaveCameras(const std::string fileName, const bool poseOnly = true, const uint64_t offset_ns = 0);
+
   virtual bool SaveCosts(const std::string fileName, const int type = 0);
   virtual bool SaveResiduals(const std::string fileName, const int type = 0);
   virtual void ComputeErrorFeature(float *ex);

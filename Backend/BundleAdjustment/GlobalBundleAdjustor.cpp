@@ -893,11 +893,15 @@ bool GlobalBundleAdjustor::SaveTimes(const std::string fileName) {
   return true;
 }
 
-bool GlobalBundleAdjustor::SaveCameras(const std::string fileName, const bool poseOnly) {
+bool GlobalBundleAdjustor::SaveCameras(const std::string fileName, const bool poseOnly, const uint64_t offset_ns) {
   FILE *fp = fopen(fileName.c_str(), "w");
   if (!fp) {
     return false;
   }
+  //
+//  float time_offset = static_cast<float>( int64_t(offset_ns / 1e5) ) / 1e4;
+  double time_offset = static_cast<double>(offset_ns*1e-9);
+
   const int Nc1 = static_cast<int>(m_CsDel.size()), Nc2 = m_Cs.Size(), Nc = Nc1 + Nc2;
   AlignedVector<HistoryCamera> Cs;
   m_work.Resize(Cs.BindSize(Nc) / sizeof(float));
@@ -927,7 +931,7 @@ bool GlobalBundleAdjustor::SaveCameras(const std::string fileName, const bool po
     p += T.GetAppliedRotationInversely(m_K.m_pu);
     Rotation3D::AB(RuT, T, R);
     R.GetQuaternion(q);
-    fprintf(fp, "%f %f %f %f %f %f %f %f", C.m_t, p.x(), p.y(), p.z(),
+    fprintf(fp, "%f %f %f %f %f %f %f %f", C.m_t + time_offset, p.x(), p.y(), p.z(),
                                            q.x(), q.y(), q.z(), q.w());
     if (!poseOnly && iFrm2m[C.m_iFrm] != -1) {
       const Camera &_C = m_CsLM[iFrm2m[C.m_iFrm]];

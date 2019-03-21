@@ -1256,12 +1256,16 @@ bool LocalBundleAdjustor::SaveTimes(const std::string fileName) {
   return true;
 }
 
-bool LocalBundleAdjustor::SaveCameras(const std::string fileName, const bool poseOnly) {
+bool LocalBundleAdjustor::SaveCameras(const std::string fileName, const bool poseOnly, const uint64_t offset_ns) {
   FILE *fp = fopen(fileName.c_str(), "w");
   if (!fp) {
     return false;
   }
 #ifdef CFG_HISTORY
+  //
+//  float time_offset = static_cast<float>( int64_t(offset_ns / 1e5) ) / 1e4;
+  double time_offset = static_cast<double>(offset_ns*1e-9);
+
   Point3D p;
   Quaternion q;
   Rotation3D R;
@@ -1274,7 +1278,7 @@ bool LocalBundleAdjustor::SaveCameras(const std::string fileName, const bool pos
     p = hist.m_C.m_p + T.GetAppliedRotationInversely(m_K.m_pu);
     Rotation3D::AB(RuT, T, R);
     R.GetQuaternion(q);
-    fprintf(fp, "%f %f %f %f %f %f %f %f", hist.m_t, p.x(), p.y(), p.z(),
+    fprintf(fp, "%f %f %f %f %f %f %f %f", hist.m_t + time_offset, p.x(), p.y(), p.z(),
                                            q.x(), q.y(), q.z(), q.w());
     if (!poseOnly) {
       RuT.Apply(hist.m_C.m_ba, ba);
