@@ -13,7 +13,7 @@ SeqNameList = ['MH_01_easy', 'MH_02_easy', 'MH_03_medium', 'MH_04_difficult', 'M
 
 Result_root = '/mnt/DATA/tmp/EuRoC/ICA_BA/'
 
-Number_GF_List = [70 150 200 400 600 800]; # [800, 1000, 1500, 2000]; # [200, 300, 400, 600, 800, 1000, 1500, 2000]; # [2000]; # 
+Number_GF_List = [70, 150, 200, 400, 600, 800]; 
 
 Num_Repeating = 10 # 1 # 
 
