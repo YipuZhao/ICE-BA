@@ -15,6 +15,8 @@ Result_root = '/mnt/DATA/tmp/EuRoC/iceBA_Stereo_Speedx1/'
 # Number_GF_List = [70, 150, 200, 400, 600, 800]; 
 Number_GF_List = [70, 150, 200, 400]; 
 
+rate = 1.0
+
 Num_Repeating = 10 # 1 # 
 
 SleepTime = 2 # 10 # 25
@@ -55,9 +57,9 @@ for ri, num_gf in enumerate(Number_GF_List):
             # cmd="../bin/ice_ba --imgs_folder $EuRoC_PATH/$Sequence 
             # --start_idx 0 --end_idx -1 --iba_param_path ../config/config_of_stereo_v2.txt 
             # --stereo"
-            cmd_slam   = str('../bin/ice_ba --imgs_folder ' + Path_Image + ' ' \
-            	+ '--start_idx 0 --end_idx -1 --iba_param_path ' + File_Config + ' --stereo ' \
-            	+ '--max_num_per_grid '  + str(int(num_gf/24.0 + 0.5)) + ' --grid_row_num 4 --grid_col_num 6' )
+            cmd_slam   = str('../bin/ice_ba --stereo --imgs_folder ' + Path_Image + ' ' \
+                + '--start_idx 0 --end_idx -1 --iba_param_path ' + File_Config + ' --budget_per_frame ' + str(int(50/rate + 0.5)) + ' ' \
+                + '--max_num_per_grid '  + str(int(num_gf/24.0 + 0.5)) + ' --grid_row_num 4 --grid_col_num 6' )
             cmd_timelog = str('cp /mnt/DATA/iceBA_tmpLog.txt ' + Experiment_dir + '/' + SeqName + '_Log.txt')
             cmd_GBA_log = str('cp /mnt/DATA/iceBA_tmpGBA.txt ' + Experiment_dir + '/' + SeqName + '_KeyFrameTrajectory.txt')
             cmd_LBA_log = str('cp /mnt/DATA/iceBA_tmpLBA.txt ' + Experiment_dir + '/' + SeqName + '_AllFrameTrajectory.txt')

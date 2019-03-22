@@ -32,10 +32,13 @@
 #include <fstream>
 #include <vector>
 
+#define DO_VIZ
+
 namespace fs = boost::filesystem;
 using std::string;
 using std::vector;
 DEFINE_string(imgs_folder, "", "The folder containing l and r folders, and the calib.yaml");
+DEFINE_int32(budget_per_frame, 50, "Budget to process a mono/stereo frame(pair), in ms");
 DEFINE_int32(grid_row_num, 4, "Number of rows of detection grids");
 DEFINE_int32(grid_col_num, 6, "Number of cols of detection grids");
 DEFINE_int32(max_num_per_grid, 4, "Max number of points per grid");
@@ -421,6 +424,8 @@ int main(int argc, char** argv) {
         FLAGS_end_idx = img_file_paths.size();
     }
 
+    int N_img = img_file_paths.size();
+
     FLAGS_start_idx = std::max(0, FLAGS_start_idx);
     // remove all frames before the first IMU data
     while (FLAGS_start_idx < FLAGS_end_idx && get_timestamp_from_img_name(img_file_paths[FLAGS_start_idx], offset_ts_ns) <= imu_samples.front().time_stamp)
@@ -442,8 +447,11 @@ int main(int argc, char** argv) {
             FLAGS_max_feature_distance_over_baseline_ratio);
     const Eigen::Matrix4f T_Cl_Cr =
             duo_calib_param.Camera.D_T_C_lr[0].inverse() * duo_calib_param.Camera.D_T_C_lr[1];
+
+#ifdef DO_VIZ
     XP::PoseViewer pose_viewer;
     pose_viewer.set_clear_canvas_before_draw(true);
+#endif
 
     IBA::Solver solver;
     Eigen::Vector3f last_position = Eigen::Vector3f::Zero();
@@ -483,7 +491,9 @@ int main(int argc, char** argv) {
         Eigen::Vector3f cur_position = W_vio_T_S.topRightCorner(3, 1);
         travel_dist += (cur_position - last_position).norm();
         last_position = cur_position;
+#ifdef DO_VIZ
         pose_viewer.addPose(W_vio_T_S, speed_and_biases, travel_dist);
+#endif
     });
     solver.Start();
 
@@ -652,15 +662,16 @@ int main(int argc, char** argv) {
         IBA::CurrentFrame CF;
         IBA::KeyFrame KF;
         create_iba_frame(key_pnts, key_pnts_slave, imu_meas, time_stamp, &CF, &KF);
-        solver.PushCurrentFrame(CF, KF.iFrm == -1 ? nullptr : &KF);
+        // Yipu
+        // serialize local BA for better time profiling?
+        solver.PushCurrentFrame(CF, KF.iFrm == -1 ? nullptr : &KF, false);
 
-
+        // Yipu
         // Time Logging
         solver.logCurFrame.time_windowOpt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lba_proc_start).count() * 1e-3;
         solver.logCurFrame.time_total = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - vio_proc_start).count() * 1e-3;
         if (solver.logCurFrame.time_stamp > 0)
             solver.logTracking.push_back(solver.logCurFrame);
-        solver.logCurFrame.setZero();
 
         // TODO
         // Real-time Logging
@@ -671,9 +682,18 @@ int main(int argc, char** argv) {
         pre_image_key_points = key_pnts;
         pre_image_features = orb_feat.clone();
         // show pose
+#ifdef DO_VIZ
         pose_viewer.displayTo("trajectory");
         cv::waitKey(1);
+#endif
         prev_time_stamp = time_stamp;
+
+        // Wait to load the next frame
+        std::cout << "time cost so far = " << solver.logCurFrame.time_total*1e3 << "; total buget = " << FLAGS_budget_per_frame << std::endl;
+        if(solver.logCurFrame.time_total*1e3 < FLAGS_budget_per_frame)
+            usleep( (FLAGS_budget_per_frame - solver.logCurFrame.time_total * 1e3) * 1e3 );
+
+        solver.logCurFrame.setZero();
     }
     //    std::string temp_file = "/tmp/" + std::to_string(offset_ts_ns) + ".txt";
     //    solver.SaveCamerasGBA(temp_file, false /* append */, true /* pose only */);
