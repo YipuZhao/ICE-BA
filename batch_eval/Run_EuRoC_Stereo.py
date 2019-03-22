@@ -6,14 +6,14 @@ import time
 import signal
 
 
-# SeqNameList = ['MH_01_easy', 'MH_03_medium', 'MH_05_difficult', 'V2_02_medium', 'not_exist'];
-# SeqNameList = ['V1_03_difficult', 'V2_02_medium', 'V2_03_difficult', 'not_exist'];
-SeqNameList = ['MH_01_easy', 'MH_02_easy', 'MH_03_medium', 'MH_04_difficult', 'MH_05_difficult', 'V1_01_easy', 'V1_02_medium', 'V1_03_difficult', 'V2_01_easy', 'V2_02_medium', 'V2_03_difficult', 'not_exist'];
-# SeqNameList = ['MH_01_easy'];
+# SeqNameList = ['MH_01_easy', 'MH_03_medium', 'MH_05_difficult', 'V2_02_medium'];
+SeqNameList = ['MH_01_easy', 'V2_02_medium', 'MH_05_difficult'];
+# SeqNameList = ['MH_01_easy', 'MH_02_easy', 'MH_03_medium', 'MH_04_difficult', 'MH_05_difficult', 'V1_01_easy', 'V1_02_medium', 'V1_03_difficult', 'V2_01_easy', 'V2_02_medium', 'V2_03_difficult'];
 
-Result_root = '/mnt/DATA/tmp/EuRoC/ICA_BA/'
+Result_root = '/mnt/DATA/tmp/EuRoC/iceBA_Stereo_Speedx1/'
 
-Number_GF_List = [70, 150, 200, 400, 600, 800]; 
+# Number_GF_List = [70, 150, 200, 400, 600, 800]; 
+Number_GF_List = [70, 150, 200, 400]; 
 
 Num_Repeating = 10 # 1 # 
 
@@ -57,7 +57,7 @@ for ri, num_gf in enumerate(Number_GF_List):
             # --stereo"
             cmd_slam   = str('../bin/ice_ba --imgs_folder ' + Path_Image + ' ' \
             	+ '--start_idx 0 --end_idx -1 --iba_param_path ' + File_Config + ' --stereo ' \
-            	+ '--max_num_per_grid '  + str(num_gf) )
+            	+ '--max_num_per_grid '  + str(int(num_gf/24.0 + 0.5)) + ' --grid_row_num 4 --grid_col_num 6' )
             cmd_timelog = str('cp /mnt/DATA/iceBA_tmpLog.txt ' + Experiment_dir + '/' + SeqName + '_Log.txt')
             cmd_GBA_log = str('cp /mnt/DATA/iceBA_tmpGBA.txt ' + Experiment_dir + '/' + SeqName + '_KeyFrameTrajectory.txt')
             cmd_LBA_log = str('cp /mnt/DATA/iceBA_tmpLBA.txt ' + Experiment_dir + '/' + SeqName + '_AllFrameTrajectory.txt')

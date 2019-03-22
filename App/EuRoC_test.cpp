@@ -36,16 +36,16 @@ namespace fs = boost::filesystem;
 using std::string;
 using std::vector;
 DEFINE_string(imgs_folder, "", "The folder containing l and r folders, and the calib.yaml");
-DEFINE_int32(grid_row_num, 1, "Number of rows of detection grids");
-DEFINE_int32(grid_col_num, 1, "Number of cols of detection grids");
-DEFINE_int32(max_num_per_grid, 70, "Max number of points per grid");
+DEFINE_int32(grid_row_num, 4, "Number of rows of detection grids");
+DEFINE_int32(grid_col_num, 6, "Number of cols of detection grids");
+DEFINE_int32(max_num_per_grid, 4, "Max number of points per grid");
 DEFINE_double(feat_quality, 0.07, "Tomasi-Shi feature quality level");
 DEFINE_double(feat_min_dis, 10, "Tomasi-Shi feature minimal distance");
 DEFINE_bool(not_use_fast, false, "Whether or not use FAST");
-DEFINE_int32(pyra_level, 2, "Total pyramid levels");
+DEFINE_int32(pyra_level, 3, "Total pyramid levels");
 DEFINE_int32(start_idx, 0, "The image index of the first detection (from 0)");
 DEFINE_int32(end_idx, -1, "The image index of the last detection");
-DEFINE_double(uniform_radius, 40, "< 5 disables uniformaty enforcement");
+DEFINE_double(uniform_radius, 20, "< 5 disables uniformaty enforcement");
 DEFINE_int32(ft_len, 125, "The feature track length threshold when dropout kicks in");
 DEFINE_double(ft_droprate, 0.05, "The drop out rate when a feature track exceeds ft_len");
 DEFINE_bool(show_feat_only, false, "wether or not show detection results only");
@@ -56,7 +56,7 @@ DEFINE_double(max_feature_distance_over_baseline_ratio,
               3000, "Used for slave image feature detection");
 DEFINE_string(iba_param_path, "", "iba parameters path");
 DEFINE_string(gba_camera_save_path, "", "Save the camera states to when finished");
-DEFINE_bool(stereo, false, "monocular or stereo mode");
+DEFINE_bool(stereo, true, "monocular or stereo mode");
 DEFINE_bool(save_feature, false, "Save features to .dat file");
 
 size_t load_image_data(const string& image_folder,
@@ -350,6 +350,11 @@ int main(int argc, char** argv) {
         google::ShowUsageWithFlags(argv[0]);
         return -1;
     }
+
+    std::cout << "Param: max_num_per_grid = " << FLAGS_max_num_per_grid
+              << ", grid_row_num = " << FLAGS_grid_row_num
+              << ", grid_row_num = " << FLAGS_grid_col_num << std::endl;
+
     vector<string> img_file_paths;
     vector<string> slave_img_file_paths;
     vector<string> iba_dat_file_paths;
@@ -504,6 +509,8 @@ int main(int argc, char** argv) {
         const float time_stamp = get_timestamp_from_img_name(img_file_paths[it_img], offset_ts_ns);
         //        std::cout << "time stamp = " << time_stamp << std::endl;
 
+        auto vio_proc_start = std::chrono::high_resolution_clock::now();
+
         std::vector<cv::KeyPoint> key_pnts;
         cv::Mat orb_feat;
         cv::Mat pre_img_in_smooth;
@@ -538,8 +545,6 @@ int main(int argc, char** argv) {
                 cv::blur(slave_img_in, slave_img_smooth, cv::Size(3, 3));
             }
         }
-
-        auto vio_proc_start = std::chrono::high_resolution_clock::now();
 
         // use optical flow  from the 1st frame
         if (it_img != FLAGS_start_idx) {

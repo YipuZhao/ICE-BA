@@ -10,5 +10,5 @@ debug_gba = 0
 history_lba = 1
 history_gba = 1
 
-input_fps = 30
+input_fps = 20
 random_seed = 10
