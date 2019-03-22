@@ -672,15 +672,15 @@ int main(int argc, char** argv) {
     }
     //    std::string temp_file = "/tmp/" + std::to_string(offset_ts_ns) + ".txt";
     //    solver.SaveCamerasGBA(temp_file, false /* append */, true /* pose only */);
-    solver.SaveCamerasGBA("/mnt/DATA/tmp_GBA.txt", offset_ts_ns, false /* append */, true /* pose only */);
+    solver.SaveCamerasGBA("/mnt/DATA/iceBA_tmpGBA.txt", offset_ts_ns, false /* append */, true /* pose only */);
     //
-    solver.SaveCamerasLBA("/mnt/DATA/tmp_LBA.txt", offset_ts_ns, false /* append */, true /* pose only */);
+    solver.SaveCamerasLBA("/mnt/DATA/iceBA_tmpLBA.txt", offset_ts_ns, false /* append */, true /* pose only */);
 
     solver.Stop();
 
     // add by Yipu
     std::cout << "terminated! saving the time cost log!" << std::endl;
-    solver.saveLogging("/mnt/DATA/tmpLog.txt");
+    solver.saveLogging("/mnt/DATA/iceBA_tmpLog.txt");
     solver.Destroy();
     // for comparsion with asl groundtruth
     //    convert_to_asl_timestamp(temp_file, FLAGS_gba_camera_save_path, offset_ts_ns);

@@ -58,9 +58,9 @@ for ri, num_gf in enumerate(Number_GF_List):
             cmd_slam   = str('../bin/ice_ba --imgs_folder ' + Path_Image + ' ' \
             	+ '--start_idx 0 --end_idx -1 --iba_param_path ' + File_Config + ' --stereo ' \
             	+ '--max_num_per_grid '  + str(num_gf) )
-            cmd_timelog = str('cp /mnt/DATA/tmpLog.txt ' + Experiment_dir + '/' + SeqName + '_Log.txt')
-            cmd_GBA_log = str('cp /mnt/DATA/tmp_GBA.txt ' + Experiment_dir + '/' + SeqName + '_KeyFrameTrajectory.txt')
-            cmd_LBA_log = str('cp /mnt/DATA/tmp_LBA.txt ' + Experiment_dir + '/' + SeqName + '_AllFrameTrajectory.txt')
+            cmd_timelog = str('cp /mnt/DATA/iceBA_tmpLog.txt ' + Experiment_dir + '/' + SeqName + '_Log.txt')
+            cmd_GBA_log = str('cp /mnt/DATA/iceBA_tmpGBA.txt ' + Experiment_dir + '/' + SeqName + '_KeyFrameTrajectory.txt')
+            cmd_LBA_log = str('cp /mnt/DATA/iceBA_tmpLBA.txt ' + Experiment_dir + '/' + SeqName + '_AllFrameTrajectory.txt')
 
             print bcolors.WARNING + "cmd_slam: \n"   + cmd_slam   + bcolors.ENDC
             print bcolors.WARNING + "cmd_timelog: \n" + cmd_timelog + bcolors.ENDC
