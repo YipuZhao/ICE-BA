@@ -87,7 +87,11 @@ float DEPTH_TRI_DL_RADIUS_FACTOR_DECREASE  = 0.5f;
 float DEPTH_TRI_DL_GAIN_RATIO_MIN          = 0.25f;
 float DEPTH_TRI_DL_GAIN_RATIO_MAX          = 0.75f;
 
+#ifdef EXTRA_LBA
+  int BA_MAX_ITERATIONS                               = 15;
+#else
   int BA_MAX_ITERATIONS                               = 10;
+#endif
 float BA_WEIGHT_FEATURE                               = 1.0e-5f;
 float BA_WEIGHT_FEATURE_KEY_FRAME                     = 1.0e-3f;
 float BA_WEIGHT_PRIOR_CAMERA_INITIAL                  = 1.0e-5f;
@@ -212,7 +216,11 @@ float BA_DL_GAIN_RATIO_MAX                            = 0.75f;
 float BA_ANGLE_EPSILON                                = 1.745329252e-7f;  //1.0e-5*pi/180
 
  int LBA_MAX_SLIDING_TRACK_LENGTH           = 5;
+#ifdef EXTRA_LBA
+ int LBA_MAX_LOCAL_FRAMES                   = 75;
+#else
  int LBA_MAX_LOCAL_FRAMES                   = 50;
+#endif
 bool LBA_RESET_DEPTH_INFORMATION            = false;
  int LBA_PROPAGATE_CAMERA                   = 1;
  int LBA_PCG_CONDITIONER_BAND               = 1;

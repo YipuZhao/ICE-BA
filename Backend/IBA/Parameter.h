@@ -18,6 +18,10 @@
 
 #include "Configurator.h"
 
+// Yipu
+// uncomment the macro to increase LBA parameters (iter_num & window_sz) by 50%
+#define EXTRA_LBA
+
 extern int KF_FIRST_LOCAL_FRAMES;
 extern int KF_MIN_FRAME_STEP;
 extern int KF_MIN_FEATURE_SROUCES;
