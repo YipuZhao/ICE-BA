@@ -12,16 +12,24 @@ SeqNameList = ['MH_01_easy', 'V2_02_medium', 'MH_05_difficult'];
 
 # Result_root = '/mnt/DATA/tmp/EuRoC/iceBA_Stereo_Speedx1/'
 # Result_root = '/mnt/DATA/tmp/EuRoC/iceBA_Stereo_Speedx2/'
+<<<<<<< Updated upstream
 # Result_root = '/mnt/DATA/tmp/EuRoC/iceBA_Stereo_Speedx4/'
 #
-# Result_root = '/mnt/DATA/tmp/EuRoC/iceBA_Stereo_Extra_Speedx1/'
+Result_root = '/mnt/DATA/tmp/EuRoC/iceBA_Stereo_Extra_Speedx1/'
 # Result_root = '/mnt/DATA/tmp/EuRoC/iceBA_Stereo_Extra_Speedx2/'
-Result_root = '/mnt/DATA/tmp/EuRoC/iceBA_Stereo_Extra_Speedx4/'
+# Result_root = '/mnt/DATA/tmp/EuRoC/iceBA_Stereo_Extra_Speedx4/'
+=======
+Result_root = '/mnt/DATA/tmp/EuRoC/iceBA_Stereo_Speedx4/'
+>>>>>>> Stashed changes
 
 # Number_GF_List = [70, 150, 200, 400, 600, 800]; 
 Number_GF_List = [70, 150, 200, 400]; 
 
-rate = 4.0 # 1.0 # 2.0 # 
+<<<<<<< Updated upstream
+rate = 1.0 # 2.0 # 4.0 # 
+=======
+rate = 4.0 # 2.0 # 1.0
+>>>>>>> Stashed changes
 
 Num_Repeating = 10 # 1 # 
 
