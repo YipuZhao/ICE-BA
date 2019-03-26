@@ -497,6 +497,7 @@ int main(int argc, char** argv) {
     });
     solver.Start();
 
+double time_rest = 0;
     float prev_time_stamp = 0.0f;
     // load previous image
     std::vector<cv::KeyPoint> pre_image_key_points;
@@ -518,6 +519,12 @@ int main(int argc, char** argv) {
         // get timestamp from image file name (s)
         const float time_stamp = get_timestamp_from_img_name(img_file_paths[it_img], offset_ts_ns);
         //        std::cout << "time stamp = " << time_stamp << std::endl;
+
+        if (time_rest < -FLAGS_budget_per_frame*1e-3 * 0.5) {
+            time_rest += FLAGS_budget_per_frame*1e-3;
+            cout << "Skip frame " << ni << endl;
+            continue ;
+        }
 
         auto vio_proc_start = std::chrono::high_resolution_clock::now();
 
@@ -690,8 +697,10 @@ int main(int argc, char** argv) {
 
         // Wait to load the next frame
         std::cout << "time cost so far = " << solver.logCurFrame.time_total*1e3 << "; total buget = " << FLAGS_budget_per_frame << std::endl;
-        if(solver.logCurFrame.time_total*1e3 < FLAGS_budget_per_frame)
-            usleep( (FLAGS_budget_per_frame - solver.logCurFrame.time_total * 1e3) * 1e3 );
+        time_rest = FLAGS_budget_per_frame*1e-3 - solver.logCurFrame.time_total;
+        if(time_rest > 0) {
+            usleep(time_rest*1e6);
+        }
 
         solver.logCurFrame.setZero();
     }
