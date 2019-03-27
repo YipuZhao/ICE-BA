@@ -522,7 +522,7 @@ double time_rest = 0;
 
         if (time_rest < -FLAGS_budget_per_frame*1e-3 * 0.5) {
             time_rest += FLAGS_budget_per_frame*1e-3;
-            cout << "Skip frame " << ni << endl;
+            std::cout << "Skip frame " << it_img << std::endl;
             continue ;
         }
 
