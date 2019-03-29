@@ -1437,7 +1437,11 @@ class LocalBundleAdjustor : public MT::Thread {
   }
 
   inline void getIDPNum(size_t & N) {
-      N = CountSlidingTracks();
+//      N = CountSlidingTracks();
+      // NOTE
+      // either sliding tracks or local tracks are not what I want;
+      // how to collect the size of landmarks states, rather than the measurements?
+      N = CountLocalTracks();
   }
 
  protected:
