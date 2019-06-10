@@ -1,4 +1,4 @@
-visualize = 0
+visualize = 1
 pause = 0
 print_camera = 0
 verbose_lba = 0

@@ -32,7 +32,7 @@
 #include <fstream>
 #include <vector>
 
-//#define DO_VIZ
+#define DO_VIZ
 
 namespace fs = boost::filesystem;
 using std::string;
@@ -62,44 +62,117 @@ DEFINE_string(gba_camera_save_path, "", "Save the camera states to when finished
 DEFINE_bool(stereo, true, "monocular or stereo mode");
 DEFINE_bool(save_feature, false, "Save features to .dat file");
 
-size_t load_image_data(const string& image_folder,
-                       std::vector<string> &limg_name,
-                       std::vector<string> &rimg_name) {
-    LOG(INFO) << "Loading " << image_folder;
-    std::string l_path = image_folder + "/cam0/data.csv";
-    std::string r_path = image_folder + "/cam1/data.csv";
-    std::string r_img_prefix = image_folder + "/cam1/data/";
-    std::ifstream limg_file(l_path);
-    std::ifstream rimg_file(r_path);
-    if (!limg_file.is_open() || !rimg_file.is_open()) {
-        LOG(WARNING) << image_folder << " cannot be opened";
-        return 0;
+
+// General sequences, e.g. EuRoC, TUM-VI, New College, Hololens, Oxford RobotCar
+#define TIME_LONG_TO_SEC    1e-9
+
+// comparison, not case sensitive.
+bool compareTimestamp (const std::string& first, const std::string& second)
+{
+    long time_stamp_l = std::stol( first );
+    long time_stamp_r = std::stol( second );
+    return ( time_stamp_l < time_stamp_r );
+}
+
+size_t load_image_data(const string &strPathToSequence,
+                     vector<string> &vstrImageLeft,
+                     vector<string> &vstrImageRight)
+{
+    // setup image directories
+    string img_dir_l = strPathToSequence + "/cam0/data/";
+    string img_dir_r = strPathToSequence + "/cam1/data/";
+
+    // get a sorted list of files in the img directories
+    boost::filesystem::path img_dir_path_l(img_dir_l.c_str());
+    if (!boost::filesystem::exists(img_dir_path_l))
+    {
+        std::cout << std::endl << "Left image directory does not exist: \t" << img_dir_l << std::endl;
+        return -1;
     }
-    std::string line;
-    std::string time;
-    while (getline(limg_file,line)) {
-        if (line[0] == '#')
-            continue;
-        std::istringstream is(line);
-        int i = 0;
-        while (getline(is, time, ',')){
-            bool is_exist = boost::filesystem::exists(r_img_prefix + time + ".png");
-            if (i == 0 && is_exist){
-                limg_name.push_back(time + ".png");
-                rimg_name.push_back(time + ".png");
-            }
-            i++;
+    boost::filesystem::path img_dir_path_r(img_dir_r.c_str());
+    if (!boost::filesystem::exists(img_dir_path_r))
+    {
+        std::cout << std::endl << "Right image directory does not exist: \t" << img_dir_r << std::endl;
+        return -1;
+    }
+
+    // get all files in the img directories
+    size_t max_len_l = 0;
+    std::list<std::string> imgs_l;
+    boost::filesystem::directory_iterator end_itr;
+    for (boost::filesystem::directory_iterator file(img_dir_path_l); file != end_itr; ++file)
+    {
+        boost::filesystem::path filename_path = file->path().filename();
+        if (boost::filesystem::is_regular_file(file->status()) &&
+                filename_path.extension() == ".png")
+        {
+            std::string filename(filename_path.string());
+            //            cout << filename << endl;
+            imgs_l.push_back(filename.substr(0, filename.length()-4));
+            //            cout << filename.substr(0, filename.length()-4) << endl;
+            max_len_l = std::max(max_len_l, filename.length());
         }
     }
-    limg_file.close();
-    rimg_file.close();
-    LOG(INFO)<< "loaded " << limg_name.size() << " images";
-    return limg_name.size();
+    size_t max_len_r = 0;
+    std::list<std::string> imgs_r;
+    for (boost::filesystem::directory_iterator file(img_dir_path_r); file != end_itr; ++file)
+    {
+        boost::filesystem::path filename_path = file->path().filename();
+        if (boost::filesystem::is_regular_file(file->status()) &&
+                filename_path.extension() == ".png")
+        {
+            std::string filename(filename_path.string());
+            imgs_r.push_back(filename.substr(0, filename.length()-4));
+            max_len_r = std::max(max_len_r, filename.length());
+        }
+    }
+
+    imgs_l.sort(compareTimestamp);
+    imgs_r.sort(compareTimestamp);
+
+    //    // extract the image files with common name
+    //    std::vector<std::string> img_lr_pair; // (n_imgs_l + n_imgs_r);
+    //    std::set_intersection (imgs_l.begin(), imgs_l.end(),
+    //                           imgs_r.begin(), imgs_r.end(),
+    //                           std::back_inserter(img_lr_pair));
+    //    std::cout << std::endl << "Number of stereo image pairs: " << img_lr_pair.size() << std::endl;
+
+    std::list<std::string>::iterator it_r = imgs_r.begin();
+    for (std::list<std::string>::iterator it_l = imgs_l.begin(); it_l != imgs_l.end(); ++ it_l) {
+        while (it_r != imgs_r.end()) {
+            // compare the timestamp between i & j
+            long time_stamp_l = std::stol( *it_l );
+            long time_stamp_r = std::stol( *it_r );
+            if (fabs((double)((long double)time_stamp_l * TIME_LONG_TO_SEC) - (double)((long double)time_stamp_r * TIME_LONG_TO_SEC)) < 0.003) {
+                // pair left & right frames
+                vstrImageLeft.push_back( *it_l + ".png" );
+                vstrImageRight.push_back( *it_r + ".png" );
+//                vTimeStamps.push_back( (double)((long double)time_stamp_l * TIME_LONG_TO_SEC) );
+                //                cout << vTimeStamps[vTimeStamps.size() - 1] << endl;
+                // move on to the next left index
+                it_r ++;
+                break ;
+            }
+            else if ((double)((long double)time_stamp_l * TIME_LONG_TO_SEC) < (double)((long double)time_stamp_r * TIME_LONG_TO_SEC)) {
+                // skip current left index
+                break ;
+            }
+            else {
+                // move on to the next right index
+                it_r ++;
+            }
+        }
+    }
+    assert(vstrImageLeft.size() == vstrImageRight.size());
+    std::cout << std::endl << "Number of stereo image pairs: " << vstrImageRight.size() << std::endl;
+    LOG(INFO)<< "loaded " << vstrImageLeft.size() << " images";
+    return vstrImageLeft.size();
 }
+
 
 size_t load_imu_data(const string& imu_file_str,
                      std::list<XP::ImuData>* imu_samples_ptr,
-                     uint64_t &offset_ts_ns) {
+                     uint64_t & offset_ns) {
     CHECK(imu_samples_ptr != NULL);
     LOG(INFO) << "Loading " << imu_file_str;
     std::ifstream imu_file(imu_file_str.c_str());
@@ -113,29 +186,40 @@ size_t load_imu_data(const string& imu_file_str,
     std::string line;
     std::string item;
     double c[6];
-    uint64_t t;
+    double t;
+    int idx;
     bool set_offset_time = false;
-    while (getline(imu_file,line)) {
+//    offset_ns = 0;
+    while (std::getline(imu_file,line)) {
+//        std::cout << "Parsing " << line << std::endl;
         if (line[0] == '#')
             continue;
         std::istringstream is(line);
         int i = 0;
-        while (getline(is, item, ',')) {
+        while (std::getline(is, item, ' ')) {
+//            std::cout << item << ", ";
             std::stringstream ss;
             ss << item;
             if (i == 0)
+                ss >> idx;
+            else if (i == 1)
                 ss >> t;
             else
-                ss >> c[i-1];
+                ss >> c[i-2];
+//            std::cout << i << ", ";
             i++;
         }
+//        std::cout << std::endl;
         if (!set_offset_time) {
             set_offset_time = true;
-            offset_ts_ns = t;
+            offset_ns = uint64_t(t * 1e9);
         }
         XP::ImuData imu_sample;
-        float _t_100us = (t - offset_ts_ns)/1e5;
-        imu_sample.time_stamp = _t_100us/1e4;
+//        float _t_100us = (t - offset_ts_ns)/1e5;
+//        imu_sample.time_stamp = _t_100us/1e4;
+        float offset_100us = offset_ns/1e5;
+        imu_sample.time_stamp = t - float(offset_100us/1e4);
+//        imu_sample.time_stamp = t;
         imu_sample.ang_v(0) = c[0];
         imu_sample.ang_v(1) = c[1];
         imu_sample.ang_v(2) = c[2];
@@ -143,6 +227,7 @@ size_t load_imu_data(const string& imu_file_str,
         imu_sample.accel(1) = c[4];
         imu_sample.accel(2) = c[5];
 
+//        std::cout << "IMU record at " << imu_sample.time_stamp << std::endl;
         VLOG(3) << "accel " << imu_sample.accel.transpose()
                 << " gyro " << imu_sample.ang_v.transpose();
         imu_samples.push_back(imu_sample);
@@ -154,9 +239,9 @@ size_t load_imu_data(const string& imu_file_str,
 
 void load_asl_calib(const std::string &asl_path,
                     XP::DuoCalibParam &calib_param) {
-    std::string cam0_yaml = asl_path + "/cam0/sensor.yaml";
-    std::string cam1_yaml = asl_path + "/cam1/sensor.yaml";
-    std::string imu0_yaml = asl_path + "/imu0/sensor.yaml";
+    std::string cam0_yaml = asl_path + "/../cam0.yaml";
+    std::string cam1_yaml = asl_path + "/../cam1.yaml";
+    std::string imu0_yaml = asl_path + "/../imu.yaml";
     YAML::Node cam0_calib = YAML::LoadFile(cam0_yaml);
     YAML::Node cam1_calib = YAML::LoadFile(cam1_yaml);
     YAML::Node imu0_calib = YAML::LoadFile(imu0_yaml);
@@ -222,25 +307,6 @@ float get_timestamp_from_img_name(const string& img_name,
     return static_cast<float>(t)/1e4;
 }
 
-bool convert_to_asl_timestamp(const string& file_in,
-                              const string& file_out,
-                              uint64_t offset_ns) {
-    FILE *fp_in = fopen(file_in.c_str(), "r");
-    FILE *fp_out = fopen(file_out.c_str(), "w");
-    if (!fp_in || !fp_out) {
-        LOG(ERROR) << "convert to asl timestamp error";
-        return false;
-    }
-    float t;
-    float x, y, z;
-    float qx, qy, qz, qw;
-    while (fscanf(fp_in, "%f %f %f %f %f %f %f %f", &t, &x, &y, &z, &qx, &qy, &qz, &qw) == 8) {
-        double t_s = t + static_cast<double>(offset_ns*1e-9);
-        fprintf(fp_out, "%lf %f %f %f %f %f %f %f\n", t_s, x, y, z, qx, qy, qz, qw);
-    }
-    fclose(fp_in);
-    fclose(fp_out);
-}
 
 inline bool cmp_by_class_id(const cv::KeyPoint& lhs, const cv::KeyPoint& rhs)  {
     return lhs.class_id < rhs.class_id;
@@ -411,7 +477,7 @@ int main(int argc, char** argv) {
 
     // Load IMU samples to predict OF point locations
     std::list<XP::ImuData> imu_samples;
-    std::string imu_file = FLAGS_imgs_folder + "/imu0/data.csv";
+    std::string imu_file = FLAGS_imgs_folder + "/imu.txt";
     uint64_t offset_ts_ns;
     if (load_imu_data(imu_file, &imu_samples, offset_ts_ns) > 0) {
         std::cout << "Load imu data. Enable OF prediciton with gyro\n";

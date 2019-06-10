@@ -6,19 +6,35 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/../bin)
 # =========================
 # run front-end + back-end with EuRoC dataset
 # =========================
-add_executable(ice_ba
+add_executable(ice_ba_euroc
     ../App/EuRoC_test.cpp
 )
-target_link_libraries(ice_ba
+target_link_libraries(ice_ba_euroc
     IBA
     OF
 )
 if (CVD_FOUND)
- target_link_libraries(ice_ba
+ target_link_libraries(ice_ba_euroc
      IBAVis
 )
 endif(CVD_FOUND)
 
+
+# =========================
+# run front-end + back-end with FPV dataset
+# =========================
+add_executable(ice_ba_fpv
+    ../App/FPV_test.cpp
+)
+target_link_libraries(ice_ba_fpv
+    IBA
+    OF
+)
+if (CVD_FOUND)
+ target_link_libraries(ice_ba_fpv
+     IBAVis
+)
+endif(CVD_FOUND)
 
 
 # =========================

@@ -6,14 +6,14 @@ import time
 import signal
 
 
-# SeqNameList = ['MH_01_easy', 'MH_03_medium', 'MH_05_difficult', 'V2_02_medium'];
-# SeqNameList = ['MH_01_easy', 'V2_02_medium', 'MH_05_difficult'];
-SeqNameList = ['MH_01_easy', 'MH_02_easy', 'MH_03_medium', 'MH_04_difficult', 'MH_05_difficult', 'V1_01_easy', 'V1_02_medium', 'V1_03_difficult', 'V2_01_easy', 'V2_02_medium', 'V2_03_difficult'];
+# SeqNameList = ['indoor_forward_3', 'indoor_forward_5', 'indoor_forward_6', \
+#                'indoor_forward_7', 'indoor_forward_9', 'indoor_forward_10'];
+SeqNameList = ['indoor_forward_10'];
 
 # Result_root = '/mnt/DATA/tmp/EuRoC/iceBA_Stereo_Speedx'
-Result_root = '/mnt/DATA/tmp/EuRoC/iceBA_Stereo_Extra_Speedx'
+Result_root = '/mnt/DATA/tmp/UZH_FPV/iceBA_Stereo_Extra_Speedx'
 
-Playback_Rate_List = [1.0, 2.0, 3.0, 4.0, 5.0];
+Playback_Rate_List = [1.0] # [1.0, 2.0, 3.0, 4.0, 5.0];
 
 # Optimal Param
 Number_GF_List = [150]; 
@@ -55,15 +55,15 @@ for pi, rate in enumerate(Playback_Rate_List):
                 SeqName = SeqNameList[sn]
                 print bcolors.ALERT + "Round: " + str(iteration + 1) + "; Seq: " + SeqName
 
-                Path_Image   = '/mnt/DATA/Datasets/EuRoC_dataset/' + SeqName + '/'
+                Path_Image   = '/mnt/DATA/Datasets/UZH_FPV/' + SeqName + '/'
                 File_traj = Experiment_dir + '/' + SeqName
 
                 # cmd="../bin/ice_ba --imgs_folder $EuRoC_PATH/$Sequence 
                 # --start_idx 0 --end_idx -1 --iba_param_path ../config/config_of_stereo_v2.txt 
                 # --stereo"
-                cmd_slam   = str('../bin/ice_ba_euroc --stereo --imgs_folder ' + Path_Image + ' ' \
+                cmd_slam   = str('../bin/ice_ba_fpv --stereo --imgs_folder ' + Path_Image + ' ' \
                     + '--start_idx 0 --end_idx -1 --iba_param_path ' + File_Config + ' ' \
-                    + '--budget_per_frame ' + str(int(50/rate + 0.5)) + ' ' \
+                    + '--budget_per_frame ' + str(int(33.0/rate + 0.5)) + ' ' \
                     + '--max_num_per_grid '  + str(int(num_gf/24.0 + 0.5)) + ' ' \
                     + '--grid_row_num 4 --grid_col_num 6' )
                 cmd_timelog = str('cp /mnt/DATA/iceBA_tmpLog.txt ' + Experiment_dir + '/' + SeqName + '_Log.txt')
