@@ -6,9 +6,9 @@ import time
 import signal
 
 
-# SeqNameList = ['indoor_forward_3', 'indoor_forward_5', 'indoor_forward_6', \
-#                'indoor_forward_7', 'indoor_forward_9', 'indoor_forward_10'];
-SeqNameList = ['indoor_forward_10'];
+SeqNameList = ['indoor_forward_3', 'indoor_forward_5', 'indoor_forward_6', \
+               'indoor_forward_7', 'indoor_forward_9', 'indoor_forward_10'];
+# SeqNameList = ['indoor_forward_10'];
 
 # Result_root = '/mnt/DATA/tmp/EuRoC/iceBA_Stereo_Speedx'
 Result_root = '/mnt/DATA/tmp/UZH_FPV/iceBA_Stereo_Extra_Speedx'

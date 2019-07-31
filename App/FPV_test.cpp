@@ -32,7 +32,7 @@
 #include <fstream>
 #include <vector>
 
-#define DO_VIZ
+// #define DO_VIZ
 
 namespace fs = boost::filesystem;
 using std::string;
